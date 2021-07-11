@@ -28,6 +28,7 @@
 static const char *TAG = "example";
 
 esp_err_t start_rest_server(const char *base_path);
+esp_err_t init_ds18b20(void);
 
 static void initialise_mdns(void)
 {
@@ -128,6 +129,7 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(init_ds18b20());
     initialise_mdns();
     netbiosns_init();
     netbiosns_set_name(CONFIG_EXAMPLE_MDNS_HOST_NAME);
