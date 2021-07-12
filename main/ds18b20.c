@@ -112,6 +112,7 @@ esp_err_t read_ds18b20_temp(float *reading)
     if (error != DS18B20_OK)
     {
         ++error_count;
+        return ESP_FAIL;
     }
 
     return ESP_OK;

@@ -14,6 +14,8 @@
 #include "esp_vfs.h"
 #include "cJSON.h"
 
+esp_err_t read_ds18b20_temp(float *reading);
+
 static const char *REST_TAG = "esp-rest";
 #define REST_CHECK(a, str, goto_tag, ...)                                              \
     do                                                                                 \
@@ -159,7 +161,9 @@ static esp_err_t temperature_data_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/json");
     cJSON *root = cJSON_CreateObject();
-    cJSON_AddNumberToObject(root, "raw", esp_random() % 20);
+    float reading;
+    read_ds18b20_temp(&reading);
+    cJSON_AddNumberToObject(root, "raw", reading);
     const char *sys_info = cJSON_Print(root);
     httpd_resp_sendstr(req, sys_info);
     free((void *)sys_info);
