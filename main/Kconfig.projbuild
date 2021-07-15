@@ -9,7 +9,7 @@ menu "Boochbot Configuration"
 
     choice EXAMPLE_WEB_DEPLOY_MODE
         prompt "Website deploy mode"
-        default EXAMPLE_WEB_DEPLOY_SEMIHOST
+        default EXAMPLE_WEB_DEPLOY_SF
         help
             Select website deploy mode.
             You can deploy website to host, and ESP32 will retrieve them in a semihost way (JTAG is needed).
@@ -72,23 +72,24 @@ menu "Boochbot Configuration"
             max at 3.3V), itself connected to VCC, and the One Wire Bus data line. The Gate is
             connected to the GPIO specified here.
 
-    config STRONG_PULLUP_GPIO
-        int "Strong pull-up GPIO number"
-        range 0 33
-        default 5
-        help
-            GPIO number (IOxx) to control the strong pull-up on the One Wire Bus, perhaps
-            via a P-channel MOSFET between VCC and the One Wire Bus data line.
+    if ENABLE_STRONG_PULLUP_GPIO
+        config STRONG_PULLUP_GPIO
+            int "Strong pull-up GPIO number"
+            range 0 33
+            default 5
+            help
+                GPIO number (IOxx) to control the strong pull-up on the One Wire Bus, perhaps
+                via a P-channel MOSFET between VCC and the One Wire Bus data line.
 
-            This GPIO will be set as an output and driven high during temperature conversion.
-            This would enable the MOSFET providing current to the devices.
+                This GPIO will be set as an output and driven high during temperature conversion.
+                This would enable the MOSFET providing current to the devices.
 
-            At all other times it will be driven low, switching off the MOSFET and allowing
-            the One Wire Bus to operate normally.
+                At all other times it will be driven low, switching off the MOSFET and allowing
+                the One Wire Bus to operate normally.
 
-            Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used.
+                Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used.
 
-            GPIOs 34-39 are input-only so cannot be used to drive the One Wire Bus.
-        depends on ENABLE_STRONG_PULLUP_GPIO
+                GPIOs 34-39 are input-only so cannot be used to drive the One Wire Bus.
+    endif
 
 endmenu

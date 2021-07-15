@@ -12,6 +12,8 @@
 #define DS18B20_RESOLUTION   (DS18B20_RESOLUTION_12_BIT)
 #define SAMPLE_PERIOD        (1000)   // milliseconds
 
+static const char *TAG = "ds18b20";
+
 OneWireBus *g_owb;
 DS18B20_Info *g_device;
 static bool init_complete = false;
@@ -85,6 +87,7 @@ esp_err_t init_ds18b20(void)
 #endif
 
     init_complete = true;
+    ESP_LOGI(TAG, "Completed ds18b20 init sequence");
     return ESP_OK;
 
 init_cleanup:
