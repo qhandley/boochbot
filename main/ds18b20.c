@@ -14,9 +14,9 @@
 
 static const char *TAG = "ds18b20";
 
+static OneWireBus *g_owb;
+static DS18B20_Info *g_device;
 static owb_rmt_driver_info g_rmt_driver_info;
-OneWireBus *g_owb;
-DS18B20_Info *g_device;
 static bool init_complete = false;
 
 esp_err_t init_ds18b20(void)
@@ -34,20 +34,20 @@ esp_err_t init_ds18b20(void)
     owb_use_crc(g_owb, true);  // enable CRC check for ROM code
 
     // Find all connected devices
-    printf("Finding devices:\n");
+    ESP_LOGI(TAG, "Finding devices...");
     owb_search_first(g_owb, &search_state, &found);
     while (found)
     {
         char rom_code_s[17];
         owb_string_from_rom_code(search_state.rom_code, rom_code_s, sizeof(rom_code_s));
-        printf("  %d : %s\n", num_devices, rom_code_s);
+        //printf("  %d : %s\n", num_devices, rom_code_s);
         device_rom_codes[num_devices] = search_state.rom_code;
         ++num_devices;
         owb_search_next(g_owb, &search_state, &found);
     }
 
     if (num_devices != 1) {
-        printf("Error: found %d device%s\n", num_devices, num_devices == 1 ? "" : "s");
+        ESP_LOGE(TAG, "Only (1) device supported! Instead found %d device%s\n", num_devices, num_devices == 1 ? "" : "s");
         goto init_cleanup;
     }
 
@@ -59,11 +59,11 @@ esp_err_t init_ds18b20(void)
     {
         char rom_code_s[OWB_ROM_CODE_STRING_LENGTH];
         owb_string_from_rom_code(rom_code, rom_code_s, sizeof(rom_code_s));
-        printf("Single device %s present\n", rom_code_s);
+        ESP_LOGI(TAG, "Single device %s present", rom_code_s);
     }
     else
     {
-        printf("An error occurred reading ROM code: %d\n", status);
+        ESP_LOGE(TAG, "Failed to read ROM code: %d\n", status);
         goto init_cleanup;
     }
 
@@ -71,7 +71,7 @@ esp_err_t init_ds18b20(void)
     DS18B20_Info *ds18b20_info = ds18b20_malloc(); // heap allocation
     if (ds18b20_info == NULL)
     {
-        printf("Unable to allocate memory for ds18b20");
+        ESP_LOGE(TAG, "Failed to allocate memory for ds18b20");
         goto init_cleanup;
     }
 
@@ -87,7 +87,7 @@ esp_err_t init_ds18b20(void)
 #endif
 
     init_complete = true;
-    ESP_LOGI(TAG, "Completed ds18b20 init sequence");
+    ESP_LOGI(TAG, "Successfully completed init sequence");
     return ESP_OK;
 
 init_cleanup:
