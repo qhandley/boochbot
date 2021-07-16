@@ -14,6 +14,7 @@
 
 static const char *TAG = "ds18b20";
 
+static owb_rmt_driver_info g_rmt_driver_info;
 OneWireBus *g_owb;
 DS18B20_Info *g_device;
 static bool init_complete = false;
@@ -29,8 +30,7 @@ esp_err_t init_ds18b20(void)
     vTaskDelay(2000.0 / portTICK_PERIOD_MS);
 
     // Create a 1-Wire bus, using the RMT timeslot driver
-    owb_rmt_driver_info rmt_driver_info;
-    g_owb = owb_rmt_initialize(&rmt_driver_info, GPIO_DS18B20_0, RMT_CHANNEL_1, RMT_CHANNEL_0);
+    g_owb = owb_rmt_initialize(&g_rmt_driver_info, GPIO_DS18B20_0, RMT_CHANNEL_1, RMT_CHANNEL_0);
     owb_use_crc(g_owb, true);  // enable CRC check for ROM code
 
     // Find all connected devices
@@ -105,16 +105,12 @@ esp_err_t read_ds18b20_temp(float *reading)
         return ESP_FAIL;
     }
 
-    ds18b20_convert_all(g_owb);
-    ds18b20_wait_for_conversion(g_device);
-
-    // Read the results immediately after conversion otherwise it may fail
-    // (using printf before reading may take too long)
-    error = ds18b20_read_temp(g_device, reading);
+    error = ds18b20_convert_and_read_temp(g_device, reading);
 
     if (error != DS18B20_OK)
     {
         ++error_count;
+        ESP_LOGE(TAG, "Failed to convert and read temp (%d)", error_count);
         return ESP_FAIL;
     }
 

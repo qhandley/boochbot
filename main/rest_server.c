@@ -162,9 +162,7 @@ static esp_err_t temperature_data_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/json");
     cJSON *root = cJSON_CreateObject();
     float reading;
-    if (ESP_OK != read_ds18b20_temp(&reading)) {
-        reading = 0.0;
-    }
+    read_ds18b20_temp(&reading);
     cJSON_AddNumberToObject(root, "raw", reading);
     const char *sys_info = cJSON_Print(root);
     httpd_resp_sendstr(req, sys_info);
