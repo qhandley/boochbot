@@ -9,7 +9,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include "esp_http_server.h"
-#include "esp_system.h"
+#include "esp_chip_info.h"
+#include "esp_random.h"
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "cJSON.h"
@@ -161,7 +162,7 @@ static esp_err_t temperature_data_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/json");
     cJSON *root = cJSON_CreateObject();
-    float reading;
+    float reading = 0.0f;
     read_ds18b20_temp(&reading);
     cJSON_AddNumberToObject(root, "raw", reading);
     const char *sys_info = cJSON_Print(root);
